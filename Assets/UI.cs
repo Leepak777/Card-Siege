@@ -17,7 +17,8 @@ public class UI : MonoBehaviour
     public GameObject trash;
     public GameObject Deck;
     Random rnd;
-    
+    public int turn = 1;
+    public bool turnEnd = true;
     void Start()
     {
         for(int i = 0; i < 52; i++){
@@ -25,8 +26,17 @@ public class UI : MonoBehaviour
         }
         rnd = new Random((int)Time.time*1000);
     }
+
+    public void endTurn(){
+        turn++;
+        turnEnd = true;
+    }
+    public void startTurn(){
+        turnEnd = false;
+        drawCard();
+        drawCard();
+    }
     public void initDeck(int count){
-        
         GameObject prefab = card;
         GameObject player = Instantiate(prefab) as GameObject;
         player.transform.position = new Vector3(0,0,2);
@@ -37,38 +47,44 @@ public class UI : MonoBehaviour
         player.GetComponentInChildren<Text>().text = count+"";
     }
     public void clearDeck(){
-        foreach(GameObject c in GameObject.FindGameObjectsWithTag("Card")){
-            if(!c.gameObject.transform.IsChildOf(trash.transform)){
-                c.transform.SetParent(trash.transform);
-                c.transform.position = trash.transform.position;
-                c.GetComponent<CardEvent>().unhighlight();
-                c.GetComponent<CardEvent>().shrinken();
+        if(!turnEnd){
+            foreach(GameObject c in GameObject.FindGameObjectsWithTag("Card")){
+                if(!c.gameObject.transform.IsChildOf(trash.transform)){
+                    c.transform.SetParent(trash.transform);
+                    c.transform.position = trash.transform.position;
+                    c.GetComponent<CardEvent>().unhighlight();
+                    c.GetComponent<CardEvent>().shrinken();
+                }
             }
         }
     }
     public void shuffleDeck(){
-        int i = 0;
-        while(trash.transform.childCount>0){
-            i = rnd.Next(0,trash.transform.childCount);
-            GameObject card = trash.transform.GetChild(i).gameObject;
-            card.transform.SetParent(Deck.transform);
-            card.transform.position = Deck.transform.position;
+        if(!turnEnd){
+            int i = 0;
+            while(trash.transform.childCount>0){
+                i = rnd.Next(0,trash.transform.childCount);
+                GameObject card = trash.transform.GetChild(i).gameObject;
+                card.transform.SetParent(Deck.transform);
+                card.transform.position = Deck.transform.position;
+            }
         }
     }
     public void drawCard(){
-        if(Deck.transform.childCount>0){
-            GameObject card = Deck.transform.GetChild(0).gameObject;
-            GameObject goParent = GameObject.Find("Cards");
-            int count = 0;
-            for(int i = 0; i < goParent.transform.childCount; i++){
-                if(goParent.transform.GetChild(i).tag == "Card"){
-                    count++;
+        if(!turnEnd){
+            if(Deck.transform.childCount>0){
+                GameObject card = Deck.transform.GetChild(0).gameObject;
+                GameObject goParent = GameObject.Find("Cards");
+                int count = 0;
+                for(int i = 0; i < goParent.transform.childCount; i++){
+                    if(goParent.transform.GetChild(i).tag == "Card"){
+                        count++;
+                    }
                 }
+                if(count >= 7){
+                    return;
+                }
+                card.transform.SetParent(goParent.transform);
             }
-            if(count >= 7){
-                return;
-            }
-            card.transform.SetParent(goParent.transform);
         }
     }
     public void createCard(){
@@ -103,13 +119,15 @@ public class UI : MonoBehaviour
         
     }
     public void playCard(){
-        if(checkselected()){
-            GameObject c = getSelected();
-            if(c.gameObject.transform.IsChildOf(GameObject.Find("Cards").transform)){
-                c.transform.SetParent(trash.transform);
-                c.transform.position = trash.transform.position;
-                c.GetComponent<CardEvent>().Toggle();
-                c.GetComponent<CardEvent>().shrinken();
+        if(!turnEnd){
+            if(checkselected()){
+                GameObject c = getSelected();
+                if(c.gameObject.transform.IsChildOf(GameObject.Find("Cards").transform)){
+                    c.transform.SetParent(trash.transform);
+                    c.transform.position = trash.transform.position;
+                    c.GetComponent<CardEvent>().Toggle();
+                    c.GetComponent<CardEvent>().shrinken();
+                }
             }
         }
     }
