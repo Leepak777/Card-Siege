@@ -285,6 +285,7 @@ MonoBehaviour:
   ogScale: {x: 0, y: 0, z: 0}
   order: 0
   isDragging: 0
+  txt: {fileID: 2875359472543074188}
 --- !u!212 &650181453686266405
 SpriteRenderer:
   m_ObjectHideFlags: 0

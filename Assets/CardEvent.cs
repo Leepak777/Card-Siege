@@ -23,6 +23,9 @@ public class CardEvent : MonoBehaviour
     public Vector3 ogScale = new Vector3(0,0,0);
     public int order = 0;
     public bool isDragging = false;
+    Vector3 ogPos = new Vector3(0,0,0); 
+    GameObject ogParent;
+    public Text txt;
     public void Toggle(){
         if((GameObject.Find("UI").GetComponent<UI>().checkselected()&& !selected)){
                 return;
@@ -70,6 +73,8 @@ public class CardEvent : MonoBehaviour
 
         offset = gameObject.transform.position - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z));
 
+        ogPos = transform.position;
+        ogParent = transform.parent.gameObject;
     }
 
     public void OnMouseDrag()
@@ -78,42 +83,45 @@ public class CardEvent : MonoBehaviour
 
         Vector3 curPosition = Camera.main.ScreenToWorldPoint(curScreenPoint) + offset;
         transform.position = curPosition;
-        RectTransform r = GameObject.Find("Hand").GetComponent<RectTransform>();
-        if(RectTransformUtility.RectangleContainsScreenPoint(r, curScreenPoint , Camera.main)){
-            gameObject.transform.SetSiblingIndex(GameObject.Find("Temp").transform.childCount);
-            gameObject.transform.SetParent(GameObject.Find("Temp").transform);
-            shrinken();
-            gameObject.GetComponentInChildren<Text>().enabled = true;
-        }
-        else{
-            transform.position = GameObject.Find("Deck").transform.position;
-            gameObject.transform.SetParent(GameObject.Find("Deck").transform);
-            gameObject.GetComponentInChildren<Text>().enabled = false;
-        }
+        
     }
     public void OnMouseUp(){
+        selected = false;
         Vector3 curScreenPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z);
         Vector3 curPosition = Camera.main.ScreenToWorldPoint(curScreenPoint) + offset;
         RectTransform r = GameObject.Find("Hand").GetComponent<RectTransform>();
         RectTransform t = GameObject.Find("Trash").GetComponent<RectTransform>();
         RectTransform d = GameObject.Find("Deck").GetComponent<RectTransform>();
-        if(RectTransformUtility.RectangleContainsScreenPoint(r, curScreenPoint , Camera.main)){
+        if(RectTransformUtility.RectangleContainsScreenPoint(r, curScreenPoint , Camera.main) && GameObject.Find("Cards").transform.childCount < 7){
             gameObject.transform.SetSiblingIndex(GameObject.Find("Cards").transform.childCount);
             gameObject.transform.SetParent(GameObject.Find("Cards").transform);
             shrinken();
-            gameObject.GetComponentInChildren<Text>().enabled = true;
+            txt.enabled = true;
         }
         else if(RectTransformUtility.RectangleContainsScreenPoint(d, curScreenPoint , Camera.main)){
             transform.position = GameObject.Find("DeckCards").transform.position;
             gameObject.transform.SetParent(GameObject.Find("DeckCards").transform);
-            gameObject.GetComponentInChildren<Text>().enabled = false;
+            txt.enabled = false;
+            shrinken();
         }
         else if(RectTransformUtility.RectangleContainsScreenPoint(t, curScreenPoint , Camera.main)){
             transform.position = GameObject.Find("TrashDeck").transform.position;
             gameObject.transform.SetParent(GameObject.Find("TrashDeck").transform);
-            gameObject.GetComponentInChildren<Text>().enabled = false;
+            txt.enabled = false;
+            shrinken();
         }
-            
+        else{
+            transform.SetParent(ogParent.transform);
+            transform.position = ogPos;
+            shrinken();
+            if(transform.parent.name != "Cards"){
+                txt.enabled = false;
+            }
+            else{
+                txt.enabled = true;
+            }
+        }
+        shrinken(); 
         
     }
 
