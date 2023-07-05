@@ -17,6 +17,7 @@ public class UI : MonoBehaviour
     public GameObject trash;
     public GameObject Deck;
     public GameObject temp;
+    public ResourcesBar bar;
     Random rnd;
     public int turn = 1;
     public bool turnEnd = true;
@@ -64,7 +65,9 @@ public class UI : MonoBehaviour
         if(!turnEnd){
             int i = 1;
             foreach(GameObject go in GameObject.FindGameObjectsWithTag("Card")){
-                go.transform.SetParent(temp.transform);
+                if(go.transform.parent.name != "Cards"){
+                    go.transform.SetParent(temp.transform);
+                }
             }
             while(temp.transform.childCount>0){
                 i = rnd.Next(0,temp.transform.childCount);
@@ -130,13 +133,14 @@ public class UI : MonoBehaviour
         if(!turnEnd){
             if(checkselected()){
                 GameObject c = getSelected();
-                if(c.gameObject.transform.IsChildOf(GameObject.Find("Cards").transform)){
+                if(c.gameObject.transform.IsChildOf(GameObject.Find("Cards").transform) && bar.getBar() >= 5){
                     c.transform.SetParent(trash.transform);
                     c.transform.position = trash.transform.position;
                     c.GetComponent<CardEvent>().Toggle();
                     c.GetComponent<CardEvent>().shrinken();
                     checkEmpty();
                     c.GetComponentInChildren<Text>().enabled = (false);
+                    bar.UpdateHealthBar(-5);
                 }
             }
         }

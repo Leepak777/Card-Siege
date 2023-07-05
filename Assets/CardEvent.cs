@@ -92,6 +92,7 @@ public class CardEvent : MonoBehaviour
         RectTransform r = GameObject.Find("Hand").GetComponent<RectTransform>();
         RectTransform t = GameObject.Find("Trash").GetComponent<RectTransform>();
         RectTransform d = GameObject.Find("Deck").GetComponent<RectTransform>();
+        ResourcesBar bar = GameObject.Find("InnerBar").GetComponent<ResourcesBar>();
         if(RectTransformUtility.RectangleContainsScreenPoint(r, curScreenPoint , Camera.main) && GameObject.Find("Cards").transform.childCount < 7){
             gameObject.transform.SetSiblingIndex(GameObject.Find("Cards").transform.childCount);
             gameObject.transform.SetParent(GameObject.Find("Cards").transform);
@@ -105,12 +106,26 @@ public class CardEvent : MonoBehaviour
             shrinken();
         }
         else if(RectTransformUtility.RectangleContainsScreenPoint(t, curScreenPoint , Camera.main)){
-            transform.position = GameObject.Find("TrashDeck").transform.position;
-            gameObject.transform.SetParent(GameObject.Find("TrashDeck").transform);
-            txt.enabled = false;
-            shrinken();
+            if(transform.IsChildOf(GameObject.Find("Cards").transform) && bar.getBar() >= 5){
+                bar.UpdateHealthBar(-5);
+                transform.position = GameObject.Find("TrashDeck").transform.position;
+                gameObject.transform.SetParent(GameObject.Find("TrashDeck").transform);
+                txt.enabled = false;
+                shrinken();
+            }
+            else{
+                reset();
+            }
         }
         else{
+            reset();
+        }
+        shrinken(); 
+        
+    }
+
+    void reset(){
+         
             transform.SetParent(ogParent.transform);
             transform.position = ogPos;
             shrinken();
@@ -120,12 +135,8 @@ public class CardEvent : MonoBehaviour
             else{
                 txt.enabled = true;
             }
-        }
-        shrinken(); 
         
     }
-
-    
     // Update is called once per frame
     void Update()
     {
