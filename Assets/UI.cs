@@ -16,6 +16,7 @@ public class UI : MonoBehaviour
     public GameObject card;
     public GameObject trash;
     public GameObject Deck;
+    public GameObject temp;
     Random rnd;
     public int turn = 1;
     public bool turnEnd = true;
@@ -45,6 +46,7 @@ public class UI : MonoBehaviour
         player.transform.position = Deck.transform.position;
         player.name = "Card" + (count);
         player.GetComponentInChildren<Text>().text = count+"";
+        player.GetComponentInChildren<Text>().enabled = (false);
     }
     public void clearDeck(){
         if(!turnEnd){
@@ -60,19 +62,24 @@ public class UI : MonoBehaviour
     }
     public void shuffleDeck(){
         if(!turnEnd){
-            int i = 0;
-            while(trash.transform.childCount>0){
-                i = rnd.Next(0,trash.transform.childCount);
-                GameObject card = trash.transform.GetChild(i).gameObject;
-                card.transform.SetParent(Deck.transform);
-                card.transform.position = Deck.transform.position;
+            int i = 1;
+            foreach(GameObject go in GameObject.FindGameObjectsWithTag("Card")){
+                go.transform.SetParent(temp.transform);
             }
+            while(temp.transform.childCount>0){
+                i = rnd.Next(0,temp.transform.childCount);
+                GameObject go = temp.transform.GetChild(i).gameObject;
+                go.transform.SetParent(Deck.transform);
+                go.transform.position = Deck.transform.position;
+            }
+
         }
     }
+    
     public void drawCard(){
         if(!turnEnd){
             if(Deck.transform.childCount>0){
-                GameObject card = Deck.transform.GetChild(0).gameObject;
+                GameObject card = Deck.transform.GetChild(Deck.transform.childCount-1).gameObject;
                 GameObject goParent = GameObject.Find("Cards");
                 int count = 0;
                 for(int i = 0; i < goParent.transform.childCount; i++){
@@ -84,6 +91,7 @@ public class UI : MonoBehaviour
                     return;
                 }
                 card.transform.SetParent(goParent.transform);
+                card.GetComponentInChildren<Text>().enabled = (true);
             }
         }
     }
@@ -128,6 +136,7 @@ public class UI : MonoBehaviour
                     c.GetComponent<CardEvent>().Toggle();
                     c.GetComponent<CardEvent>().shrinken();
                     checkEmpty();
+                    c.GetComponentInChildren<Text>().enabled = (false);
                 }
             }
         }
