@@ -20,13 +20,28 @@ public class CardEvent : MonoBehaviour
     Vector3 ogPos = new Vector3(0,0,0); 
     GameObject ogParent;
     UI ui;
+    ResourcesBar bar;
+    public GameObject hand;
+    public GameObject trash;
+    public GameObject Deck;
+    public GameObject temp;
+    public GameObject summon;
+    public Button b;
     public Text txt;
     void Start()
     {
-        ui = GameObject.Find("UI").GetComponent<UI>(); 
         ogScale = gameObject.transform.localScale;
         highlightColor = GetComponent<Renderer>().material.color;
         order = GetComponent<Renderer>().sortingOrder;
+    }
+    public void initCard(UI ui, ResourcesBar bar,GameObject hand,GameObject trash,GameObject Deck,GameObject temp,GameObject summon){
+        this.ui = ui;
+        this.bar = bar;
+        this.hand = hand;
+        this.trash = trash;
+        this.Deck = Deck;
+        this.temp = temp;
+        this.summon = summon; 
     }
 
     public void Toggle(){
@@ -65,6 +80,19 @@ public class CardEvent : MonoBehaviour
     }
     public bool isSelected(){
         return selected;
+    }
+    public void play(){
+        if(!ui.isTurnEnded()){
+            if(transform.IsChildOf(hand.transform) && bar.getBar() >= 5){
+                    selected = false;
+                    transform.SetParent(summon.transform);
+                    //transform.position = summon.transform.position;
+                    shrinken();
+                    ui.checkEmpty();
+                    //c.GetComponentInChildren<Text>().enabled = (false);
+                    bar.UpdateHealthBar(-5);
+            }
+        }
     }
 
     private Vector3 screenPoint;
@@ -107,11 +135,14 @@ public class CardEvent : MonoBehaviour
                 gameObject.transform.SetParent(GameObject.Find("Cards").transform);
                 shrinken();
                 txt.enabled = true;
+                b.enabled = true;
             }
             else if(RectTransformUtility.RectangleContainsScreenPoint(d, curScreenPoint , Camera.main)){
                 transform.position = GameObject.Find("DeckCards").transform.position;
                 gameObject.transform.SetParent(GameObject.Find("DeckCards").transform);
                 txt.enabled = false;
+                b.enabled = false;
+
                 shrinken();
             }
             else if(RectTransformUtility.RectangleContainsScreenPoint(s, curScreenPoint , Camera.main)){
@@ -131,6 +162,7 @@ public class CardEvent : MonoBehaviour
                     transform.position = GameObject.Find("TrashDeck").transform.position;
                     gameObject.transform.SetParent(GameObject.Find("TrashDeck").transform);
                     txt.enabled = false;
+                    b.enabled = false;
                     shrinken();
                 }
                 else{
@@ -152,9 +184,11 @@ public class CardEvent : MonoBehaviour
             shrinken();
             if(transform.parent.name != "Cards"){
                 txt.enabled = false;
+                b.enabled = false;
             }
             else{
                 txt.enabled = true;
+                b.enabled = true;
             }
         
     }

@@ -14,6 +14,7 @@ public class UI : MonoBehaviour
     // Start is called before the first frame update
     public Button button;
     public GameObject card;
+    public GameObject hand;
     public GameObject trash;
     public GameObject Deck;
     public GameObject temp;
@@ -24,11 +25,13 @@ public class UI : MonoBehaviour
     public bool turnEnd = true;
     void Start()
     {
+        
         for(int i = 0; i < 52; i++){
             initDeck(i+1);
         }
         rnd = new Random((int)Time.time*1000);
         shuffleDeck();
+        turnEnd = true;
     }
 
     public void endTurn(){
@@ -36,9 +39,11 @@ public class UI : MonoBehaviour
         turnEnd = true;
     }
     public void startTurn(){
-        turnEnd = false;
-        drawCard();
-        drawCard();
+        if(turnEnd){
+            turnEnd = false;
+            drawCard();
+            drawCard();
+        }
     }
     public void initDeck(int count){
         GameObject prefab = card;
@@ -50,6 +55,8 @@ public class UI : MonoBehaviour
         player.name = "Card" + (count);
         player.GetComponentInChildren<Text>().text = count+"";
         player.GetComponentInChildren<Text>().enabled = (false);
+        player.GetComponentInChildren<Button>().enabled = (false);
+        player.GetComponent<CardEvent>().initCard(this, bar, hand, trash, Deck, temp, summon);
     }
     public void clearDeck(){
         if(!turnEnd){
@@ -67,7 +74,7 @@ public class UI : MonoBehaviour
         if(!turnEnd){
             int i = 1;
             foreach(GameObject go in GameObject.FindGameObjectsWithTag("Card")){
-                if(go.transform.parent.name != "Cards"){
+                if(!go.transform.IsChildOf(hand.transform)){
                     go.transform.SetParent(temp.transform);
                 }
             }
@@ -85,7 +92,7 @@ public class UI : MonoBehaviour
         if(!turnEnd){
             if(Deck.transform.childCount>0){
                 GameObject card = Deck.transform.GetChild(Deck.transform.childCount-1).gameObject;
-                GameObject goParent = GameObject.Find("Cards");
+                GameObject goParent = hand;
                 int count = 0;
                 for(int i = 0; i < goParent.transform.childCount; i++){
                     if(goParent.transform.GetChild(i).tag == "Card"){
@@ -97,11 +104,12 @@ public class UI : MonoBehaviour
                 }
                 card.transform.SetParent(goParent.transform);
                 card.GetComponentInChildren<Text>().enabled = (true);
+                card.GetComponentInChildren<Button>().enabled = (true);
             }
         }
     }
     public void createCard(){
-        GameObject goParent = GameObject.Find("Cards");
+        GameObject goParent = hand;
         int count = 0;
         for(int i = 0; i < goParent.transform.childCount; i++){
             if(goParent.transform.GetChild(i).tag == "Card"){
@@ -135,7 +143,7 @@ public class UI : MonoBehaviour
         if(!turnEnd){
             if(checkselected()){
                 GameObject c = getSelected();
-                if(c.gameObject.transform.IsChildOf(GameObject.Find("Cards").transform) && bar.getBar() >= 5){
+                if(c.gameObject.transform.IsChildOf(hand.transform) && bar.getBar() >= 5){
                     c.transform.SetParent(summon.transform);
                     c.transform.position = summon.transform.position;
                     c.GetComponent<CardEvent>().Toggle();
@@ -158,8 +166,18 @@ public class UI : MonoBehaviour
 
     }
 
+    public void endCard(){
+        while(summon.transform.childCount > 0){
+                GameObject go = summon.transform.GetChild(0).gameObject;
+                go.transform.SetParent(trash.transform);
+                go.transform.position = trash.transform.position;
+                go.GetComponentInChildren<Text>().enabled = false;
+                go.GetComponentInChildren<Button>().enabled = (false);
+        }
+    }
+
     public void checkEmpty(){
-        if(GameObject.Find("Cards").transform.childCount == 0 && Deck.transform.childCount == 0 ){
+        if(hand.transform.childCount == 0 && Deck.transform.childCount == 0 ){
             shuffleDeck();
         }
     }
