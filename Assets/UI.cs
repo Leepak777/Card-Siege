@@ -17,6 +17,7 @@ public class UI : MonoBehaviour
     public GameObject trash;
     public GameObject Deck;
     public GameObject temp;
+    public GameObject summon;
     public ResourcesBar bar;
     Random rnd;
     public int turn = 1;
@@ -27,6 +28,7 @@ public class UI : MonoBehaviour
             initDeck(i+1);
         }
         rnd = new Random((int)Time.time*1000);
+        shuffleDeck();
     }
 
     public void endTurn(){
@@ -134,12 +136,12 @@ public class UI : MonoBehaviour
             if(checkselected()){
                 GameObject c = getSelected();
                 if(c.gameObject.transform.IsChildOf(GameObject.Find("Cards").transform) && bar.getBar() >= 5){
-                    c.transform.SetParent(trash.transform);
-                    c.transform.position = trash.transform.position;
+                    c.transform.SetParent(summon.transform);
+                    c.transform.position = summon.transform.position;
                     c.GetComponent<CardEvent>().Toggle();
                     c.GetComponent<CardEvent>().shrinken();
                     checkEmpty();
-                    c.GetComponentInChildren<Text>().enabled = (false);
+                    //c.GetComponentInChildren<Text>().enabled = (false);
                     bar.UpdateHealthBar(-5);
                 }
             }
@@ -160,6 +162,10 @@ public class UI : MonoBehaviour
         if(GameObject.Find("Cards").transform.childCount == 0 && Deck.transform.childCount == 0 ){
             shuffleDeck();
         }
+    }
+
+    public bool isTurnEnded(){
+        return turnEnd;
     }
 
     // Update is called once per frame
