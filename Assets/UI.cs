@@ -49,7 +49,7 @@ public class UI : MonoBehaviour
     public void clearDeck(){
         if(!turnEnd){
             foreach(GameObject c in GameObject.FindGameObjectsWithTag("Card")){
-                if(!c.gameObject.transform.IsChildOf(trash.transform)){
+                if(c.gameObject.transform.IsChildOf(Deck.transform)){
                     c.transform.SetParent(trash.transform);
                     c.transform.position = trash.transform.position;
                     c.GetComponent<CardEvent>().unhighlight();
@@ -127,6 +127,7 @@ public class UI : MonoBehaviour
                     c.transform.position = trash.transform.position;
                     c.GetComponent<CardEvent>().Toggle();
                     c.GetComponent<CardEvent>().shrinken();
+                    checkEmpty();
                 }
             }
         }
@@ -140,6 +141,12 @@ public class UI : MonoBehaviour
         }
         return null;
 
+    }
+
+    public void checkEmpty(){
+        if(GameObject.Find("Cards").transform.childCount == 0 && Deck.transform.childCount == 0 ){
+            shuffleDeck();
+        }
     }
 
     // Update is called once per frame
